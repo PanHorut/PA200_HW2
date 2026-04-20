@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4. Package the application for deployment
+      # 4. Create deployment package
       - name: Create deployment package
         run: |
           zip -r deploy.zip . -x ".git/*" ".github/*" ".env" "*.pyc" "__pycache__/*" "uploads/*" ".venv/*"
@@ -43,18 +43,25 @@ jobs:
           package: deploy.zip
 
       # 6. Upload static files to Azure Blob Storage
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Upload static assets to Blob Storage
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            az storage blob upload-batch \
-              --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
-              --destination static \
-              --source static/ \
-              --overwrite \
-              --auth-mode login
+        run: |
+          pip install azure-storage-blob
+          python -c "
+          from azure.storage.blob import BlobServiceClient, ContentSettings
+          import os, mimetypes
+
+          account = '${{ vars.AZURE_STORAGE_ACCOUNT }}'
+          key = '${{ secrets.AZURE_STORAGE_KEY }}'
+          client = BlobServiceClient(f'https://{account}.blob.core.windows.net', credential=key)
+          container = client.get_container_client('static')
+
+          for root, dirs, files in os.walk('static'):
+              for f in files:
+                  local_path = os.path.join(root, f)
+                  blob_name = os.path.relpath(local_path, 'static').replace(os.sep, '/')
+                  content_type = mimetypes.guess_type(local_path)[0] or 'application/octet-stream'
+                  with open(local_path, 'rb') as data:
+                      container.upload_blob(blob_name, data, overwrite=True,
+                          content_settings=ContentSettings(content_type=content_type))
+                  print(f'Uploaded: {blob_name}')
+          "
