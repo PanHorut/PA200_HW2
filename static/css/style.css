@@ -1,0 +1,212 @@
+/* === Cloud Todo App Styles === */
+
+:root {
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --primary: #4a90d9;
+    --primary-hover: #357abd;
+    --danger: #e74c3c;
+    --danger-hover: #c0392b;
+    --success: #27ae60;
+    --text: #2c3e50;
+    --text-muted: #7f8c8d;
+    --border: #e1e4e8;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --radius: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.container {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* --- Header --- */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* --- Flash Messages --- */
+.flash-messages { margin-bottom: 1rem; }
+
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+.flash-success { background: #d4edda; color: #155724; }
+.flash-error   { background: #f8d7da; color: #721c24; }
+.flash-info    { background: #d1ecf1; color: #0c5460; }
+
+/* --- Add Form --- */
+.add-form {
+    background: var(--card-bg);
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+
+.form-group { margin-bottom: 0.75rem; }
+
+.input-title, .input-desc {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+.input-title:focus, .input-desc:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.file-input { display: none; }
+.file-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--bg);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+.file-btn:hover { background: var(--border); }
+
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-add {
+    background: var(--primary);
+    color: #fff;
+}
+.btn-add:hover { background: var(--primary-hover); }
+
+.btn-delete {
+    background: transparent;
+    font-size: 1.1rem;
+    padding: 0.4rem 0.6rem;
+    opacity: 0.5;
+}
+.btn-delete:hover { opacity: 1; }
+
+/* --- Todo List --- */
+.todo-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: opacity 0.3s;
+}
+
+.todo-item.completed { opacity: 0.55; }
+.todo-item.completed .todo-title { text-decoration: line-through; }
+
+.todo-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.todo-check {
+    text-decoration: none;
+    font-size: 1.3rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.todo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.todo-title { font-weight: 600; font-size: 1rem; }
+
+.todo-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.todo-attachment {
+    font-size: 0.8rem;
+    color: var(--primary);
+    text-decoration: none;
+}
+.todo-attachment:hover { text-decoration: underline; }
+
+.todo-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 500px) {
+    .form-row { flex-direction: column; }
+    .btn-add { width: 100%; text-align: center; }
+}

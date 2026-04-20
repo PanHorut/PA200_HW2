@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Todo App</title>
+    <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+    <link rel="icon" href="{{ static_url('images/favicon.png') }}" type="image/png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Cloud Todo App</h1>
+            <p class="subtitle">Deployed on Azure PaaS</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form class="add-form" action="{{ url_for('add_todo') }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="text" name="title" placeholder="Task title..." required class="input-title">
+            </div>
+            <div class="form-group">
+                <textarea name="description" placeholder="Description (optional)..." rows="2" class="input-desc"></textarea>
+            </div>
+            <div class="form-row">
+                <label class="file-label">
+                    <input type="file" name="attachment" class="file-input">
+                    <span class="file-btn">📎 Attach file</span>
+                </label>
+                <button type="submit" class="btn btn-add">+ Add Task</button>
+            </div>
+        </form>
+
+        <section class="todo-list">
+            {% if todos %}
+                {% for todo in todos %}
+                <div class="todo-item {{ 'completed' if todo.completed }}">
+                    <div class="todo-content">
+                        <a href="{{ url_for('toggle_todo', todo_id=todo.id) }}" class="todo-check">
+                            {% if todo.completed %}✅{% else %}⬜{% endif %}
+                        </a>
+                        <div class="todo-text">
+                            <span class="todo-title">{{ todo.title }}</span>
+                            {% if todo.description %}
+                            <span class="todo-desc">{{ todo.description }}</span>
+                            {% endif %}
+                            {% if todo.attachment_name %}
+                            <a href="{{ url_for('view_attachment', todo_id=todo.id) }}" class="todo-attachment" target="_blank">
+                                📎 {{ todo.attachment_name }}
+                            </a>
+                            {% endif %}
+                            <span class="todo-date">{{ todo.created_at.strftime('%Y-%m-%d %H:%M') if todo.created_at }}</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('delete_todo', todo_id=todo.id) }}" class="btn btn-delete" title="Delete">🗑️</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No tasks yet. Add one above! 🚀</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <footer>
+            <p>Cloud Applications – Homework #2 | Azure PaaS Deployment</p>
+        </footer>
+    </div>
+    <script src="{{ static_url('js/app.js') }}"></script>
+</body>
+</html>
