@@ -265,7 +265,12 @@ def health():
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"[WARNING] Could not initialize database on startup: {e}")
+    print("[WARNING] Tables will be created on first successful request.")
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    app.run(debug=True, host="0.0.0.0", port=port)
