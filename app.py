@@ -22,8 +22,9 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
 if os.environ.get("DATABASE_URL"):
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 elif os.environ.get("DB_HOST"):
+    from urllib.parse import quote_plus
     db_user = os.environ.get("DB_USER", "appuser")
-    db_pass = os.environ.get("DB_PASSWORD", "")
+    db_pass = quote_plus(os.environ.get("DB_PASSWORD", ""))
     db_host = os.environ.get("DB_HOST", "localhost")
     db_port = os.environ.get("DB_PORT", "5432")
     db_name = os.environ.get("DB_NAME", "tododb")
@@ -160,9 +161,15 @@ def upload_file_to_storage(file, blob_name):
 # ---------------------------------------------------------------------------
 # Database initialization with Managed Identity token support
 # ---------------------------------------------------------------------------
+_db_initialized = False
+
 def init_db():
     """Create tables. When using managed identity for Postgres, inject an
     Entra ID access token into the SQLAlchemy engine."""
+    global _db_initialized
+    if _db_initialized:
+        return
+    
     if USE_MANAGED_IDENTITY and "postgresql" in app.config["SQLALCHEMY_DATABASE_URI"]:
         from azure.identity import DefaultAzureCredential
         from sqlalchemy import event
@@ -178,8 +185,19 @@ def init_db():
             )
             cparams["password"] = token.token
 
-    with app.app_context():
-        db.create_all()
+    db.create_all()
+    _db_initialized = True
+
+
+@app.before_request
+def ensure_db():
+    """Initialize DB tables on first request if not yet done."""
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            init_db()
+        except Exception as e:
+            print(f"[ERROR] Database initialization failed: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -265,12 +283,11 @@ def health():
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
-try:
-    init_db()
-except Exception as e:
-    print(f"[WARNING] Could not initialize database on startup: {e}")
-    print("[WARNING] Tables will be created on first successful request.")
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    with app.app_context():
+        try:
+            init_db()
+        except Exception as e:
+            print(f"[WARNING] Could not initialize database: {e}")
     app.run(debug=True, host="0.0.0.0", port=port)
